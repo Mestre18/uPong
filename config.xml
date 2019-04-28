@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  <!--
+  Imagem fundo menu: https://pixabay.com/en/rectangles-647267/
+  
+  -->
+  <game
+      barSpeed="15"
+      ballSpeed="13"
+	  winPoints="10">
+    <costumization
+      objectsColorRed="255"
+	  objectsColorGreen="255"
+	  objectsColorBlue="255"
+	  backgroundColorRed="38"
+	  backgroundColorGreen="103"
+	  backgroundColorBlue="75"/>
+  </game>
+  <menu>
+   
+  </menu>
+</config>
