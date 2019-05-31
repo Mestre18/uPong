@@ -6,6 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/Menu.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/uPong.unity
+    guid: d60098be61871ec47aca7b9466155eb9
+  - enabled: 1
+    path: Assets/Scenes/PlayerOneVictory.unity
+    guid: 09a6fd9cd23d57244b73796c22331b84
+  - enabled: 1
+    path: Assets/Scenes/PlayerTwoVictory.unity
+    guid: 10de4bded8d6969448980d604384823a
   m_configObjects: {}
