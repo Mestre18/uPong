@@ -8,43 +8,44 @@ using UnityEngine;
 public class GameModel : MonoBehaviour
 {
 
-    //Atributos privados
-    private int barSpeed;
-    private int ballSpeed;
-    private int winPoints;
-    private Color objectsColor;
-    //private Color backgroundColor;
+    public List<IBall>  balls = new List<IBall>();
+    public List<IMovable> bars = new List<IMovable>();
 
-    private Vector3 ballDirection;
+    //Atributos privados
+    private int winPoints;
     private int playerOneScore;
     private int playerTwoScore;
 
     //para o controller aceder aos atributos privados (apenas leitura)
     public int WinPoints { get { return winPoints; } }
-    public int BarSpeed { get { return barSpeed; } }
-    public int BallSpeed { get { return ballSpeed; } }
     public int PlayerOneScore { get { return playerOneScore; } }
     public int PlayerTwoScore { get { return playerTwoScore; } }
-    public Color ObjectsColor { get { return objectsColor; } }
-    //public Color BackgroundColor { get { return backgroundColor; } }
 
-    //Delegates & Events
-    public delegate void ChangeBallDirectionEventHandler(Vector3 pos);
-    public static event ChangeBallDirectionEventHandler ChangeBallDirectionEvent;
-
+    //eventos
     public delegate void PlayerScoresEventHandler(int playerOneScore, int playerTwoScore);
     public static event PlayerScoresEventHandler PlayerScoresEvent;
 
+    void Awake()
+    {
+        bars.Add(GameObject.Find("Left Bar").GetComponent<LeftBarModel>() as IMovable);
+        bars.Add(GameObject.Find("Right Bar").GetComponent<RightBarModel>() as IMovable);
+        balls.Add(GameObject.Find("Ball").GetComponent<BallModel>() as IBall);
+    }
 
-    // Start is called before the first frame update
     void Start()
     {
+        //inicia com as pontuações a 0
         playerOneScore = 0;
         playerTwoScore = 0;
     }
 
+    //le o ficheiro XML
     public void LoadConfigFile()
     {
+        int barSpeed;
+        int ballSpeed;
+        Color objectsColor;
+
         var xmlDoc = new XmlDocument();
 
         //lê as configuracoes do ficheiro config.xml
@@ -55,48 +56,27 @@ public class GameModel : MonoBehaviour
         xmlDoc.Load("config.xml");
         var xmlDocElem = xmlDoc.DocumentElement;
 
-        try
+        //lê as configurações do jogo
+        var gameConfig = xmlDocElem.SelectSingleNode("/config/game");
+        barSpeed = Convert.ToInt32(gameConfig.Attributes["barSpeed"].Value);
+        ballSpeed = Convert.ToInt32(gameConfig.Attributes["ballSpeed"].Value);
+        this.winPoints = Convert.ToInt32(gameConfig.Attributes["winPoints"].Value);
+
+        //costumizacoes
+        var CostumConfig = gameConfig.SelectSingleNode("costumization");
+        objectsColor = new Color(Convert.ToInt32(CostumConfig.Attributes["objectsColorRed"].Value), Convert.ToInt32(CostumConfig.Attributes["objectsColorGreen"].Value), Convert.ToInt32(CostumConfig.Attributes["objectsColorBlue"].Value));
+        
+        //isto é apenas um exemplo que podemos ter uma lista do tipo da interface
+        //percorre os vários objetos com a interface para guardar as configurações
+        foreach(IMovable b in bars)
         {
-            //lê as configurações do jogo
-            var gameConfig = xmlDocElem.SelectSingleNode("/config/game");
-            this.barSpeed = Convert.ToInt32(gameConfig.Attributes["barSpeed"].Value);
-            this.ballSpeed = Convert.ToInt32(gameConfig.Attributes["ballSpeed"].Value);
-            this.winPoints = Convert.ToInt32(gameConfig.Attributes["winPoints"].Value);
-
-            //costumizacoes
-            var CostumConfig = gameConfig.SelectSingleNode("costumization");
-            this.objectsColor = new Color(Convert.ToInt32(CostumConfig.Attributes["objectsColorRed"].Value), Convert.ToInt32(CostumConfig.Attributes["objectsColorGreen"].Value), Convert.ToInt32(CostumConfig.Attributes["objectsColorBlue"].Value));
-            //this.backgroundColor = new Color(Convert.ToInt32(CostumConfig.Attributes["backgroundColorRed"].Value), Convert.ToInt32(CostumConfig.Attributes["backgroundColorGreen"].Value), Convert.ToInt32(CostumConfig.Attributes["backgroundColorBlue"].Value));
-
+            b.Configuration(barSpeed, objectsColor);
         }
-        catch (Exception error)
+
+        foreach (IBall b in balls)
         {
-            throw new ConfigFileMissingException("Ficheiro de configuração contém erros!", "config.xml");
+            b.Configuration(ballSpeed, objectsColor);
         }
-    }
-
-    //a bola colide com um objeto (barras/limites)
-    public void OnBallCollision(Collision collision)
-    {
-        //se colidiu com os limites
-        if (collision.gameObject.tag == "Boundaries")
-            //inverte o eixo y da trajetoria da bola
-            ballDirection.y *= -1;
-
-       //se colidiu com as barras (esquerda/direita)
-       else if (collision.gameObject.tag == "Bars")
-            //inverte o eixo x (direcao da bola) da trajetoria da bola
-            ballDirection.x *= -1;
-
-
-        ChangeBallDirectionEvent(ballDirection);
-    }
-
-    //move a bola para nova posicao
-    public void OnMoveBall(Vector3 pos)
-    {
-        ballDirection = pos;
-        ChangeBallDirectionEvent(ballDirection);
     }
 
     //aumenta a pontuacao do jogador
@@ -108,7 +88,5 @@ public class GameModel : MonoBehaviour
             playerTwoScore++;
 
         PlayerScoresEvent(playerOneScore, playerTwoScore);
-
-        //Debug.Log("Pontuacao: " + playerOneScore + "  -  " + playerTwoScore);
     }
 }

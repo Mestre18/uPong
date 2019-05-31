@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,30 +7,30 @@ using UnityEngine.UI;
 public class GameView : MonoBehaviour
 {
 
-    public GameObject leftbar;
-    public GameObject rightbar;
     public GameObject playerOneScoreboard;
     public GameObject playerTwoScoreboard;
 
-    // Start is called before the first frame update
-    void Start()
+    public void OnObjectsConfiguration(object ob, Color color)
     {
-
+        (ob as Rigidbody).GetComponent<MeshRenderer>().material.color = color;
+        //...poderia ter mais configurações
     }
 
-    public void OnMoveLeftbar(Vector3 pos)
+    //quando um erro é gerado
+    public void OnError(string erro)
     {
-        leftbar.GetComponent<Rigidbody>().velocity = pos;
+        //mostra em debug
+        Debug.Log(erro);
+        //por implementar: guardar os logs um ficheiro
     }
 
-    public void OnMoveRightbar(Vector3 pos)
-    {
-        rightbar.GetComponent<Rigidbody>().velocity = pos;
-    }
-
+    //atualiza a pontuação dos jogadores
     public void OnPlayerScores(int playerOneScore, int playerTwoScore)
     {
-        playerOneScoreboard.GetComponent<Text>().text = playerOneScore.ToString();
-        playerTwoScoreboard.GetComponent<Text>().text = playerTwoScore.ToString();
+        if(playerOneScoreboard != null && playerTwoScoreboard != null)
+        {
+            playerOneScoreboard.GetComponent<Text>().text = playerOneScore.ToString();
+            playerTwoScoreboard.GetComponent<Text>().text = playerTwoScore.ToString();
+        }
     }
 }
