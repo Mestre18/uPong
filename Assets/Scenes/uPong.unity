@@ -600,8 +600,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1040016107}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -9.89, z: 0}
-  m_LocalScale: {x: 36, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0, y: -9.87, z: 0}
+  m_LocalScale: {x: 37, y: 0.29, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7
@@ -619,6 +619,7 @@ GameObject:
   - component: {fileID: 1044135474}
   - component: {fileID: 1044135473}
   - component: {fileID: 1044135477}
+  - component: {fileID: 1044135478}
   m_Layer: 0
   m_Name: Left Bar
   m_TagString: Bars
@@ -714,6 +715,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 122
   m_CollisionDetection: 0
+--- !u!114 &1044135478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044135472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f431868c20326a04da74b5b1907ef68a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1219892735
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,6 +739,7 @@ GameObject:
   - component: {fileID: 1219892736}
   - component: {fileID: 1219892738}
   - component: {fileID: 1219892739}
+  - component: {fileID: 1219892740}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: Untagged
@@ -745,11 +759,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e27bbcef98dca845b5b0a7297765b44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  menuView: {fileID: 0}
+  gameView: {fileID: 0}
   model: {fileID: 0}
-  view: {fileID: 0}
-  ball: {fileID: 0}
-  playerOneScoreboard: {fileID: 0}
-  playerTwoScoreboard: {fileID: 0}
 --- !u!4 &1219892737
 Transform:
   m_ObjectHideFlags: 0
@@ -788,10 +800,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 837c517c4e40c8c41a0bc44ab9af413d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftbar: {fileID: 1044135472}
-  rightbar: {fileID: 1624169589}
   playerOneScoreboard: {fileID: 2142640614}
   playerTwoScoreboard: {fileID: 1915218178}
+--- !u!114 &1219892740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219892735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35efb975ac2d56146a955c8f514206b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menu: {fileID: 0}
+  labelWinner: {fileID: 0}
+  labelError: {fileID: 0}
+  startButton: {fileID: 0}
 --- !u!1 &1624169589
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,6 +831,7 @@ GameObject:
   - component: {fileID: 1624169591}
   - component: {fileID: 1624169590}
   - component: {fileID: 1624169594}
+  - component: {fileID: 1624169595}
   m_Layer: 0
   m_Name: Right Bar
   m_TagString: Bars
@@ -900,6 +927,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 122
   m_CollisionDetection: 0
+--- !u!114 &1624169595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624169589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 853bf311c8475cf4995ad8452b9c18a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1638249732
 GameObject:
   m_ObjectHideFlags: 0
@@ -941,7 +980,7 @@ Transform:
   m_GameObject: {fileID: 1638249732}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 9.89, z: 0}
-  m_LocalScale: {x: 36, y: 0.2, z: 1}
+  m_LocalScale: {x: 37, y: 0.2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6

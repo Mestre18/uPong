@@ -62,11 +62,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\BallView.cs" />
+    <Compile Include="Assets\BallModel.cs" />
     <Compile Include="Assets\ConfigFileMissingException.cs" />
     <Compile Include="Assets\GameController.cs" />
     <Compile Include="Assets\GameModel.cs" />
     <Compile Include="Assets\GameView.cs" />
+    <Compile Include="Assets\IBall.cs" />
+    <Compile Include="Assets\IMovable.cs" />
+    <Compile Include="Assets\LeftBarModel.cs" />
+    <Compile Include="Assets\MenuView.cs" />
+    <Compile Include="Assets\RightBarModel.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Pedro/OneDrive - UAb/Universidade Aberta/3º Ano/2º Semestre/21179 - Laboratório de Desenvolvimento de Software/Unity Projects/uPong/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

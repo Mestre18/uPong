@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
-
+    //Eventos
     public delegate void MoveLeftbarEventHandler(Vector3 pos);
     public static event MoveLeftbarEventHandler MoveLeftBarEvent;
 
@@ -19,36 +20,43 @@ public class GameController : MonoBehaviour
     public delegate void PlayerScoresEventHandler(int player);
     public static event PlayerScoresEventHandler PlayerScoresEvent;
 
+    public delegate void ErrorEventHandler(string error);
+    public static event ErrorEventHandler ErrorEvent;
+
+    public MenuView menuView;
+    public GameView gameView;
     public GameModel model;
-    public GameView view;
-    public BallView ball;
-    //public Camera camera;
+    public IBall ball;
+    public IMovable leftBar;
+    public IMovable rightBar;
+
 
     void Awake()
     {
         model = GetComponent<GameModel>();
-        view = GetComponent<GameView>();
-        ball = GameObject.Find("Ball").GetComponent<BallView>();
-        //camera = GameObject.Find("Main Camera").GetComponent<Camera>();
-
+        gameView = GetComponent<GameView>();
+        ball = GameObject.Find("Ball").GetComponent<BallModel>();
+        leftBar = GameObject.Find("Left Bar").GetComponent<LeftBarModel>();
+        rightBar = GameObject.Find("Right Bar").GetComponent<RightBarModel>();
 
         /***********************SUBSCRICOES AOS EVENTOS*******************/
         //movimentacoes: barras e bola
-        MoveLeftBarEvent += view.OnMoveLeftbar;
-        MoveRightBarEvent += view.OnMoveRightbar;
-        MoveBallEvent += model.OnMoveBall;
-        //MoveBallEvent += ball.OnMoveBall;
-        GameModel.ChangeBallDirectionEvent += ball.OnMoveBall;
+        MoveLeftBarEvent += leftBar.OnMovePosition;
+        MoveRightBarEvent += rightBar.OnMovePosition;
+        MoveBallEvent += ball.OnMovePosition;
 
-        //colisoes da bola com os limites e barras
-        /*BallView.BoundColisionEvent += model.OnBoundCollision;
-        BallView.BarColisionEvent += model.OnBarCollision;*/
-        BallView.ColisionEvent += model.OnBallCollision;
-       
         //pontuacao jogadores
         PlayerScoresEvent += model.OnPlayerScores;
         PlayerScoresEvent += ball.OnPlayerScore;
-        GameModel.PlayerScoresEvent += view.OnPlayerScores;
+        GameModel.PlayerScoresEvent += gameView.OnPlayerScores;
+
+        //configuracoes
+        leftBar.ObjectsConfiguration += gameView.OnObjectsConfiguration;
+        rightBar.ObjectsConfiguration += gameView.OnObjectsConfiguration;
+        ball.ObjectsConfiguration += gameView.OnObjectsConfiguration;
+
+        //erros
+        ErrorEvent += gameView.OnError;
     }
 
     // Start is called before the first frame update
@@ -59,17 +67,24 @@ public class GameController : MonoBehaviour
             //inicializa os atributos com as configurações no ficheiro
             model.LoadConfigFile();
 
-            view.leftbar.GetComponent<MeshRenderer>().material.color = model.ObjectsColor;
-            view.rightbar.GetComponent<MeshRenderer>().material.color = model.ObjectsColor;
-            ball.GetComponent<MeshRenderer>().material.color = model.ObjectsColor;
-            //camera.backgroundColor = model.BackgroundColor;
-   
             //inicia o movimento da bola
             StartCoroutine(LaunchBall());
         }
         catch (ConfigFileMissingException error)
         {
-            Debug.Log("Erro: " + error.Message + " Ficheiro: " + error.FileName);
+            ErrorEvent("Erro: " + error.Message + " Ficheiro: " + error.FileName);
+            Time.timeScale = 0;
+            return;
+        }
+        catch (FormatException)
+        {
+            ErrorEvent("Ficheiro de configuração contém erros!");
+            Time.timeScale = 0;
+            return;
+        }
+        catch (InvalidCastException)
+        {
+            ErrorEvent("Ficheiro de configuração contém erros!");
             Time.timeScale = 0;
             return;
         }
@@ -86,16 +101,6 @@ public class GameController : MonoBehaviour
 
         //verifica se recebeu inputs
         GetInput();
-
-        /*try
-        {
-            //verifica se recebeu inputs
-            GetInput();
-        }
-        catch(Exception e)
-        {
-            Debug.Log("Erro: " + e.Message);
-        }*/
 
     }
 
@@ -124,13 +129,13 @@ public class GameController : MonoBehaviour
         if (Input.GetKey(KeyCode.W))
         {
             if (MoveLeftBarEvent != null)
-                MoveLeftBarEvent(new Vector3(0, model.BarSpeed, 0));
+                MoveLeftBarEvent(new Vector3(0, leftBar.moveSpeed, 0));
         }
         //se a tecla carregada for S...move a barra esquerda para baixo
         else if (Input.GetKey(KeyCode.S))
         {
             if (MoveLeftBarEvent != null)
-                MoveLeftBarEvent(new Vector3(0, -model.BarSpeed, 0));
+                MoveLeftBarEvent(new Vector3(0, -leftBar.moveSpeed, 0));
         }
 
         /**************BARRA DIREITA*************/
@@ -138,18 +143,14 @@ public class GameController : MonoBehaviour
         if (Input.GetKey(KeyCode.UpArrow))
         {
             if (MoveRightBarEvent != null)
-                MoveRightBarEvent(new Vector3(0, model.BarSpeed, 0));
+                MoveRightBarEvent(new Vector3(0, rightBar.moveSpeed, 0));
         }
         //se a tecla carregada for Down...move a barra direita para baixo
         else if (Input.GetKey(KeyCode.DownArrow))
         {
             if (MoveRightBarEvent != null)
-                MoveRightBarEvent(new Vector3(0, -model.BarSpeed, 0));
+                MoveRightBarEvent(new Vector3(0, -rightBar.moveSpeed, 0));
         }
-
-        //se carregou em alguma outra tecla gera mensagem de erro
-        //if(Input.anyKey && (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.UpArrow) && !Input.GetKey(KeyCode.DownArrow)))
-            //throw new Exception("Tecla inválida!");
     }
 
     public void StartMovingBall()
@@ -162,17 +163,17 @@ public class GameController : MonoBehaviour
 
         //x=0: move a bola para a esquerda (-x)
         if (x == 0)
-            ballDirection.x = -model.BallSpeed;
+            ballDirection.x = -ball.moveSpeed;
         //x=1: move a bola para a direita (+x)
         else if (x == 1)
-            ballDirection.x = model.BallSpeed;
+            ballDirection.x = ball.moveSpeed;
 
         //y=0: move a bola para baixo (-y)
         if (y == 0)
-            ballDirection.y = -model.BallSpeed;
+            ballDirection.y = -ball.moveSpeed;
         //y=1: move a bola para cima (+y)
         else if (y == 1)
-            ballDirection.y = model.BallSpeed;
+            ballDirection.y = ball.moveSpeed;
         //y=2: não move a bola no eixo do y
         /*else if (y == 2)
             ballDirection.y = 0;*/
@@ -186,18 +187,17 @@ public class GameController : MonoBehaviour
     public void CheckScore()
     {
         //se ultrapassou a barra direita, o jogador 1 pontua
-        if (ball.transform.position.x > 20f)
+        if (ball.CheckRightTranspass())
         {
-            
             //Jogador 1 pontua!
             PlayerScoresEvent(1);
 
             //verifica se já tem os pontos necessarios para ganhar o jogo
             if (model.PlayerOneScore >= model.WinPoints)
             {
-                Debug.Log("JOGADOR 1 VENCEU!");
-                //gera evento
-                //....
+                //o jogador 1 venceu o jogo
+                SceneManager.LoadScene(2);
+
             }
             else
             {
@@ -207,7 +207,7 @@ public class GameController : MonoBehaviour
 
         }
         //se ultrapassou a barra esquerda, o jogador 2 pontua
-        else if (ball.transform.position.x < -20f)
+        else if (ball.CheckLeftTranspass())
         {
             //Jogador 2 pontua!
             PlayerScoresEvent(2);
@@ -215,9 +215,8 @@ public class GameController : MonoBehaviour
             //verifica se já tem os pontos necessarios para ganhar o jogo
             if (model.PlayerTwoScore >= model.WinPoints)
             {
-                Debug.Log("JOGADOR 2 VENCEU!");
-                //gera evento
-                //....
+                //o jogador 2 venceu o jogo
+                SceneManager.LoadScene(3);
             }
             else
             {
